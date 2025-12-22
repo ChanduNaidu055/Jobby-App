@@ -1,0 +1,42 @@
+.nav-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #202020;
+  padding: 30px;
+  height: 60px;
+}
+
+.website-logo {
+  height: 40px;
+  width: 130px;
+}
+
+.nav-menu {
+  list-style-type: none;
+  display: flex;
+}
+
+.nav-menu-item {
+  font-weight: 400;
+  font-size: 16px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #ffffff;
+  margin: 10px;
+}
+
+.logout-desktop-btn {
+  font-weight: 600;
+  font-size: 13px;
+  color: aliceblue;
+  background-color: #4f46e5;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  outline: none;
+  padding: 8px;
+  width: 100px;
+}
