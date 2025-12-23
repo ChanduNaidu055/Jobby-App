@@ -1,6 +1,6 @@
 import {Component} from 'react'
-import Cookies from 'js-cookie'
 import Loader from 'react-loader-spinner'
+import Cookies from 'js-cookie'
 import {BsSearch} from 'react-icons/bs'
 import Header from '../Header'
 import FiltersGroup from '../FiltersGroup'
@@ -9,41 +9,25 @@ import JobItem from '../JobItem'
 import './index.css'
 
 const employmentTypesList = [
-  {
-    label: 'Full Time',
-    employmentTypeId: 'FULLTIME',
-  },
-  {
-    label: 'Part Time',
-    employmentTypeId: 'PARTTIME',
-  },
-  {
-    label: 'Freelance',
-    employmentTypeId: 'FREELANCE',
-  },
-  {
-    label: 'Internship',
-    employmentTypeId: 'INTERNSHIP',
-  },
+  {label: 'Full Time', employmentTypeId: 'FULLTIME'},
+  {label: 'Part Time', employmentTypeId: 'PARTTIME'},
+  {label: 'Freelance', employmentTypeId: 'FREELANCE'},
+  {label: 'Internship', employmentTypeId: 'INTERNSHIP'},
 ]
 
 const salaryRangesList = [
-  {
-    salaryRangeId: '1000000',
-    label: '10 LPA and above',
-  },
-  {
-    salaryRangeId: '2000000',
-    label: '20 LPA and above',
-  },
-  {
-    salaryRangeId: '3000000',
-    label: '30 LPA and above',
-  },
-  {
-    salaryRangeId: '4000000',
-    label: '40 LPA and above',
-  },
+  {salaryRangeId: '1000000', label: '10 LPA and above'},
+  {salaryRangeId: '2000000', label: '20 LPA and above'},
+  {salaryRangeId: '3000000', label: '30 LPA and above'},
+  {salaryRangeId: '4000000', label: '40 LPA and above'},
+]
+
+const locationsList = [
+  {label: 'Hyderabad', locationId: 'Hyderabad'},
+  {label: 'Bangalore', locationId: 'Bangalore'},
+  {label: 'Chennai', locationId: 'Chennai'},
+  {label: 'Delhi', locationId: 'Delhi'},
+  {label: 'Mumbai', locationId: 'Mumbai'},
 ]
 
 const apiStatusConstants = {
@@ -58,8 +42,9 @@ class Jobs extends Component {
     jobsList: [],
     apiStatus: apiStatusConstants.initial,
     employeeType: [],
-    minimumSalary: 0,
+    minimumSalary: '',
     searchInput: '',
+    selectedLocations: [],
   }
 
   componentDidMount() {
@@ -67,21 +52,19 @@ class Jobs extends Component {
   }
 
   getJobs = async () => {
-    this.setState({
-      apiStatus: apiStatusConstants.inProgress,
-    })
+    this.setState({apiStatus: apiStatusConstants.inProgress})
     const {employeeType, minimumSalary, searchInput} = this.state
+
     const apiUrl = `https://apis.ccbp.in/jobs?employment_type=${employeeType.join(
       ',',
     )}&minimum_package=${minimumSalary}&search=${searchInput}`
-    const jwtToken = Cookies.get('jwt_token')
 
+    const jwtToken = Cookies.get('jwt_token')
     const options = {
-      headers: {
-        Authorization: `Bearer ${jwtToken}`,
-      },
+      headers: {Authorization: `Bearer ${jwtToken}`},
       method: 'GET',
     }
+
     const response = await fetch(apiUrl, options)
     if (response.ok) {
       const data = await response.json()
@@ -100,20 +83,24 @@ class Jobs extends Component {
         apiStatus: apiStatusConstants.success,
       })
     } else {
-      this.setState({
-        apiStatus: apiStatusConstants.failure,
-      })
+      this.setState({apiStatus: apiStatusConstants.failure})
     }
   }
 
+  getFilteredJobsByLocation = () => {
+    const {jobsList, selectedLocations} = this.state
+    if (selectedLocations.length === 0) return jobsList
+    return jobsList.filter(job => selectedLocations.includes(job.location))
+  }
+
   renderJobsList = () => {
-    const {jobsList} = this.state
-    const hasJobs = jobsList.length > 0
+    const filteredJobs = this.getFilteredJobsByLocation()
+    const hasJobs = filteredJobs.length > 0
 
     return hasJobs ? (
       <div className="all-jobs-container">
         <ul className="jobs-list">
-          {jobsList.map(job => (
+          {filteredJobs.map(job => (
             <JobItem jobData={job} key={job.id} />
           ))}
         </ul>
@@ -162,7 +149,6 @@ class Jobs extends Component {
 
   renderAllJobs = () => {
     const {apiStatus} = this.state
-
     switch (apiStatus) {
       case apiStatusConstants.success:
         return this.renderJobsList()
@@ -197,28 +183,45 @@ class Jobs extends Component {
           employeeType: prevState.employeeType.filter(item => item !== type),
         }
       }
-      return {
-        employeeType: [...prevState.employeeType, type],
-      }
+      return {employeeType: [...prevState.employeeType, type]}
     }, this.getJobs)
   }
 
+  changeLocationList = locationId => {
+    this.setState(prevState => {
+      const {selectedLocations} = prevState
+      const isAlreadySelected = selectedLocations.includes(locationId)
+      if (isAlreadySelected) {
+        return {
+          selectedLocations: selectedLocations.filter(l => l !== locationId),
+        }
+      }
+      return {selectedLocations: [...selectedLocations, locationId]}
+    })
+  }
+
   render() {
-    const {searchInput} = this.state
+    const {searchInput, selectedLocations} = this.state
     return (
       <>
         <Header />
         <div className="jobs-container">
           <div className="jobs-content">
-            <FiltersGroup
-              employmentTypesList={employmentTypesList}
-              salaryRangesList={salaryRangesList}
-              changeSearchInput={this.changeSearchInput}
-              searchInput={searchInput}
-              getJobs={this.getJobs}
-              changeSalary={this.changeSalary}
-              changeEmployeeList={this.changeEmployeeList}
-            />
+            <aside className="side-bar-container sticky-sidebar">
+              <FiltersGroup
+                employmentTypesList={employmentTypesList}
+                salaryRangesList={salaryRangesList}
+                locationsList={locationsList}
+                changeSearchInput={this.changeSearchInput}
+                searchInput={searchInput}
+                getJobs={this.getJobs}
+                changeSalary={this.changeSalary}
+                changeEmployeeList={this.changeEmployeeList}
+                selectedLocations={selectedLocations}
+                changeLocationList={this.changeLocationList}
+              />
+            </aside>
+
             <div className="search-input-jobs-list-container">
               <div className="search-input-container-desktop">
                 <input

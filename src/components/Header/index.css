@@ -5,6 +5,10 @@
   background-color: #202020;
   padding: 30px;
   height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .website-logo {
@@ -38,5 +42,7 @@
   cursor: pointer;
   outline: none;
   padding: 8px;
-  width: 100px;
+  width: 90px;
+  margin-top: 8px;
+  margin-left: 5px;
 }

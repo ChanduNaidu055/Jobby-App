@@ -8,8 +8,9 @@
 }
 
 .jobs-content {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
   width: 92%;
   max-width: 1180px;
 }
@@ -138,4 +139,18 @@
   color: white;
   width: 15px;
   height: 15px;
+}
+
+.sticky-sidebar {
+  position: sticky;
+  top: 64px;
+  align-self: flex-start;
+}
+
+.side-bar-container {
+  background-color: #1e1e1e;
+  padding: 16px;
+  border-radius: 8px;
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
 }
